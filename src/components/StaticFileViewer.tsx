@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+
+// Set up the PDF worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 interface FileNode {
   name: string;
@@ -32,7 +38,8 @@ const StaticFileViewer: React.FC<StaticFileViewerProps> = ({ folderPath }) => {
         { name: 'puring_test_python.py', type: 'file', path: 'Python_lab_practice/puring_test_python.py' },
         { name: 'tic-tac-toe.py', type: 'file', path: 'Python_lab_practice/tic-tac-toe.py' },
         { name: 'travelling_salesman_problem.py', type: 'file', path: 'Python_lab_practice/travelling_salesman_problem.py' },
-        { name: 'water_jug.py', type: 'file', path: 'Python_lab_practice/water_jug.py' }
+        { name: 'water_jug.py', type: 'file', path: 'Python_lab_practice/water_jug.py' },
+        { name: 'DocScanner 19-Nov-2025 08-34.pdf', type: 'file', path: 'Python_lab_practice/DocScanner 19-Nov-2025 08-34.pdf' }
       ]
     }
   ];
@@ -724,22 +731,46 @@ if __name__ == '__main__':
             <div>
               <div className="border-b px-4 py-3 flex justify-between items-center">
                 <h3 className="text-lg font-semibold">{selectedFile.name}</h3>
-                <button
-                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                  onClick={() => {
-                    if (selectedFile.content) {
-                      navigator.clipboard.writeText(selectedFile.content);
-                      alert('Code copied to clipboard!');
-                    }
-                  }}
-                >
-                  Copy Code
-                </button>
+                {!selectedFile.name.endsWith('.pdf') && (
+                  <button
+                    className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => {
+                      if (selectedFile.content) {
+                        navigator.clipboard.writeText(selectedFile.content);
+                        alert('Code copied to clipboard!');
+                      }
+                    }}
+                  >
+                    Copy Code
+                  </button>
+                )}
               </div>
-              <div className="p-4">
-                <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
-                  <code>{selectedFile.content}</code>
-                </pre>
+              <div className="p-4 max-h-[80vh] overflow-auto">
+                {selectedFile.name.endsWith('.pdf') ? (
+                  <div className="border rounded-lg overflow-hidden">
+                    <Document
+                      file={`/${selectedFile.path}`}
+                      onLoadError={(error) => console.error('Error while loading PDF:', error)}
+                      className="flex justify-center"
+                    >
+                      <Page pageNumber={1} width={800} />
+                    </Document>
+                    <div className="bg-gray-100 p-2 text-center">
+                      <a 
+                        href={`/${selectedFile.path}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        Open PDF in new tab
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+                    <code>{selectedFile.content}</code>
+                  </pre>
+                )}
               </div>
             </div>
           ) : (
