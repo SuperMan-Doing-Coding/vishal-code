@@ -46,10 +46,7 @@ const App: React.FC = () => {
             </p>
           </div>
           
-          {/* File Uploader Component */}
-          <div className="mt-8">
-            <FileUploader />
-          </div>
+          
           
           {/* Static File Viewer */}
           <div className="mt-12">
